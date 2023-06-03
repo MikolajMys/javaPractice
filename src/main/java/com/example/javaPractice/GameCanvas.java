@@ -1,4 +1,4 @@
-package com.example.game;
+package com.example.javaPractice;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Point2D;
@@ -46,10 +46,30 @@ public class GameCanvas extends Canvas {
             ball.updatePosition(diff);
             if(shouldBallBounceHorizontally()){ ball.bounceHorizontally();}
             if(shouldBallBounceVertically()){ ball.bounceVertically();}
-            //if(shouldBallBounceFromPaddle()){ ball.bounceFromPaddle();}
-            if (shouldBallBounceFromPaddleCentre()) { ball.bounceFromPaddleCentre();}
-            if (shouldBallBounceFromPaddleEdges()) { ball.bounceFromPaddleEdges();}
+            double offset = Math.abs((paddle.getX() + paddle.getWidth()/2) - ball.getX());
+            if(shouldBallBounceFromPaddle()) ball.bounceFromPaddle(offset);
+            //if (shouldBallBounceFromPaddleCentre()) { ball.bounceFromPaddleCentre();}
+            //if (shouldBallBounceFromPaddleEdges()) { ball.bounceFromPaddleEdges();}
+            for(Brick brick: bricks){
+                if(brick.crush(ball.extremePoints()) == Brick.CrushType.VerticalCrush){
+                    ball.bounceVertically();
+                    bricks.remove(brick);
+                    if(bricks.size()==0){
+                        ball.epicWin();
+                    }
+                    break;
+                } else
+                if(brick.crush(ball.extremePoints()) == Brick.CrushType.HorizontalCrush){
+                    ball.bounceHorizontally();
+                    bricks.remove(brick);
+                    if(bricks.size()==0){
+                        ball.epicWin();
+                    }
+                    break;
+                }
+            }
             if(shouldBallOutOfBounce()){ ball.outOfBounce(); stop();}
+
             draw();
         }
 
@@ -106,31 +126,32 @@ public class GameCanvas extends Canvas {
         return (ball.getLastPosition().getY() > 0 && ball.getY() < 0);
     }
 
-//    public boolean shouldBallBounceFromPaddle(){
-//        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight() && ball.getY() >= paddle.getY() - paddle.getHeight()
-//                && ball.getX() >= paddle.getX() && ball.getX() <= paddle.getX() + paddle.getWidth());
-//    }
+    public boolean shouldBallBounceFromPaddle(){
+        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight() && ball.getY() >= paddle.getY() - paddle.getHeight()
+                && ball.getX() >= paddle.getX() && ball.getX() <= paddle.getX() + paddle.getWidth());
+    }
 
     /*Odbicia piłki od paletki względem tego od której części paletki się ona odbije.
     Wymyśliłem, że podziele paletke na 3 części: BOK|CENTRUM|BOK.
     Jeżeli piłka dotknie środka, kąt odbicia będzie bardziej ostry,
-    a jeśli dotknie któregoś z boków kąt odbicia będzie bardziej rozwarty*/
-    public boolean shouldBallBounceFromPaddleCentre() {
-        double paddleCentreStart = paddle.getX() + paddle.getWidth() / 3.0;
-        double paddleCentreEnd = paddle.getX() + 2.0 * paddle.getWidth() / 3.0;
-        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight()
-                && ball.getY() >= paddle.getY() - paddle.getHeight()
-                && ball.getX() >= paddleCentreStart && ball.getX() <= paddleCentreEnd);
-    }
-
-    public boolean shouldBallBounceFromPaddleEdges() {
-        double paddleCentreStart = paddle.getX() + paddle.getWidth() / 3.0;
-        double paddleCentreEnd = paddle.getX() + 2.0 * paddle.getWidth() / 3.0;
-        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight()
-                && ball.getY() >= paddle.getY() - paddle.getHeight()
-                && (ball.getX() < paddleCentreStart && ball.getX() >= paddle.getX()
-                || ball.getX() > paddleCentreEnd && ball.getX() <= paddle.getX() + paddle.getWidth()));
-    }
+    a jeśli dotknie któregoś z boków kąt odbicia będzie bardziej rozwarty.
+    Jednak na dłuższą metę ten sposób nie działa tak dobrze*/
+//    public boolean shouldBallBounceFromPaddleCentre() {
+//        double paddleCentreStart = paddle.getX() + paddle.getWidth() / 3.0;
+//        double paddleCentreEnd = paddle.getX() + 2.0 * paddle.getWidth() / 3.0;
+//        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight()
+//                && ball.getY() >= paddle.getY() - paddle.getHeight()
+//                && ball.getX() >= paddleCentreStart && ball.getX() <= paddleCentreEnd);
+//    }
+//
+//    public boolean shouldBallBounceFromPaddleEdges() {
+//        double paddleCentreStart = paddle.getX() + paddle.getWidth() / 3.0;
+//        double paddleCentreEnd = paddle.getX() + 2.0 * paddle.getWidth() / 3.0;
+//        return (ball.getLastPosition().getY() < paddle.getY() - paddle.getHeight()
+//                && ball.getY() >= paddle.getY() - paddle.getHeight()
+//                && (ball.getX() < paddleCentreStart && ball.getX() >= paddle.getX()
+//                || ball.getX() > paddleCentreEnd && ball.getX() <= paddle.getX() + paddle.getWidth()));
+//    }
 
     public boolean shouldBallOutOfBounce(){
         return (ball.getY() > this.getHeight()-10);

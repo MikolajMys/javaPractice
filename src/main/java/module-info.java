@@ -4,6 +4,6 @@ module com.example.game {
 
     requires org.controlsfx.controls;
 
-    opens com.example.game to javafx.fxml;
-    exports com.example.game;
+    opens com.example.javaPractice to javafx.fxml;
+    exports com.example.javaPractice;
 }

@@ -1,4 +1,4 @@
-package com.example.game;
+package com.example.javaPractice;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
